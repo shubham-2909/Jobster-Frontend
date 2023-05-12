@@ -4,11 +4,18 @@ import { toast } from 'react-toastify'
 import {
   getUserFromLocalStorage,
   addUserToLocalStorage,
+  removeUserFromLocalStorage,
 } from '../../utils/localStorage'
+
+let user = null
+if (getUserFromLocalStorage()) {
+  user = getUserFromLocalStorage().user
+}
 
 const initialState = {
   isLoading: false,
-  user: getUserFromLocalStorage(),
+  isSidebarOpen: false,
+  user,
 }
 
 export const registerUser = createAsyncThunk(
@@ -28,7 +35,6 @@ export const loginUser = createAsyncThunk(
   async (user, thunkAPI) => {
     try {
       const resp = await customFetch.post(`/api/v1/auth/login`, user)
-      console.log(resp.data)
       return resp.data
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data.msg)
@@ -38,6 +44,16 @@ export const loginUser = createAsyncThunk(
 const userSlice = createSlice({
   name: 'user',
   initialState,
+  reducers: {
+    toggleSidebar: (state) => {
+      state.isSidebarOpen = !state.isSidebarOpen
+    },
+    logoutUser: (state) => {
+      state.isSidebarOpen = false
+      state.user = null
+      removeUserFromLocalStorage()
+    },
+  },
   extraReducers: {
     [registerUser.pending]: (state) => {
       state.isLoading = true
@@ -61,7 +77,6 @@ const userSlice = createSlice({
       const { user, token } = payload
       state.isLoading = false
       state.user = user
-      console.log(user)
       addUserToLocalStorage({ user, token })
       toast.success(`Welcome back ${user.name}`)
     },
@@ -71,5 +86,7 @@ const userSlice = createSlice({
     },
   },
 })
+
+export const { toggleSidebar, logoutUser } = userSlice.actions
 
 export default userSlice.reducer
