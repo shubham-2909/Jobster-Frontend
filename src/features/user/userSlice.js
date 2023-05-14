@@ -6,10 +6,12 @@ import {
   addUserToLocalStorage,
   removeUserFromLocalStorage,
 } from '../../utils/localStorage'
+import { loginUserThunk, registerUserThunk, updateUserThunk } from './userThunk'
 
 let user = null
 if (getUserFromLocalStorage()) {
-  user = getUserFromLocalStorage().user
+  const { name, email, location, lastName } = getUserFromLocalStorage().user
+  user = { name, email, lastName, location }
 }
 
 const initialState = {
@@ -20,25 +22,21 @@ const initialState = {
 
 export const registerUser = createAsyncThunk(
   'user/registerUser',
-  async (user, thinkAPI) => {
-    try {
-      const resp = await customFetch.post('/api/v1/auth/register', user)
-      return resp.data
-    } catch (error) {
-      return thinkAPI.rejectWithValue(error.response.data.msg)
-    }
+  async (user, thunkAPI) => {
+    return registerUserThunk('/api/v1/auth/register', user, thunkAPI)
   }
 )
 
 export const loginUser = createAsyncThunk(
   'user/loginUser',
   async (user, thunkAPI) => {
-    try {
-      const resp = await customFetch.post(`/api/v1/auth/login`, user)
-      return resp.data
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data.msg)
-    }
+    return loginUserThunk('/api/v1/auth/login', user, thunkAPI)
+  }
+)
+export const updateUser = createAsyncThunk(
+  'user/updateUser',
+  async (user, thunkAPI) => {
+    return updateUserThunk('/api/v1/auth/updateUser', user, thunkAPI)
   }
 )
 const userSlice = createSlice({
@@ -59,11 +57,12 @@ const userSlice = createSlice({
       state.isLoading = true
     },
     [registerUser.fulfilled]: (state, { payload }) => {
-      const { user, token } = payload
+      const { user } = payload
+      const { name, lastName, location, email } = user
       state.isLoading = false
-      state.user = user
-      addUserToLocalStorage({ user, token })
-      toast.success(`Hello there ${user.name}`)
+      state.user = { name, lastName, email, location }
+      addUserToLocalStorage({ user })
+      toast.success(`Hello there ${name}`)
     },
     [registerUser.rejected]: (state, { payload }) => {
       state.isLoading = false
@@ -74,13 +73,29 @@ const userSlice = createSlice({
       state.isLoading = true
     },
     [loginUser.fulfilled]: (state, { payload }) => {
-      const { user, token } = payload
+      const { user } = payload
+      const { name, lastName, location, email } = user
       state.isLoading = false
-      state.user = user
-      addUserToLocalStorage({ user, token })
-      toast.success(`Welcome back ${user.name}`)
+      state.user = { name, lastName, email, location }
+      addUserToLocalStorage({ user })
+      toast.success(`Welcome back ${name}`)
     },
     [loginUser.rejected]: (state, { payload }) => {
+      state.isLoading = false
+      toast.error(payload)
+    },
+    [updateUser.pending]: (state) => {
+      state.isLoading = true
+    },
+    [updateUser.fulfilled]: (state, { payload }) => {
+      state.isLoading = false
+      const { user } = payload
+      const { name, email, lastName, location } = user
+      state.user = { name, email, lastName, location }
+      addUserToLocalStorage({ user })
+      toast.success('User Updated')
+    },
+    [updateUser.rejected]: (state, { payload }) => {
       state.isLoading = false
       toast.error(payload)
     },
