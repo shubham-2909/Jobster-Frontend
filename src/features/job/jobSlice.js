@@ -21,12 +21,7 @@ export const createJob = createAsyncThunk(
   'job/createJob',
   async (job, thunkAPI) => {
     try {
-      const { token } = getUserFromLocalStorage().user
-      const resp = await customFetch.post('/api/v1/jobs', job, {
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-      })
+      const resp = await customFetch.post('/api/v1/jobs', job)
       thunkAPI.dispatch(clearValues())
       return resp.data
     } catch (error) {
@@ -43,19 +38,14 @@ export const createJob = createAsyncThunk(
 export const deleteJob = createAsyncThunk(
   'job/deleteJob',
   async (jobId, thunkAPI) => {
-    const { token } = getUserFromLocalStorage().user
     thunkAPI.dispatch(showLoading())
     try {
-      const resp = await customFetch.delete(`/api/v1/jobs/${jobId}`, {
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-      })
+      const resp = await customFetch.delete(`/api/v1/jobs/${jobId}`)
       thunkAPI.dispatch(getAllJobs())
       return resp.data
     } catch (error) {
       thunkAPI.dispatch(hideLoading())
-      thunkAPI.rejectWithValue(error.response.data.msg)
+      return thunkAPI.rejectWithValue(error.response.data.msg)
     }
   }
 )
@@ -63,17 +53,12 @@ export const deleteJob = createAsyncThunk(
 export const editJob = createAsyncThunk(
   'job/editJob',
   async ({ jobId, job }, thunkAPI) => {
-    const { token } = getUserFromLocalStorage().user
     try {
-      const resp = await customFetch.patch(`/api/v1/jobs/${jobId}`, job, {
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-      })
+      const resp = await customFetch.patch(`/api/v1/jobs/${jobId}`, job)
       thunkAPI.dispatch(clearValues())
       return resp.data
     } catch (error) {
-      toast.error(error.response.data.msg)
+      return thunkAPI.rejectWithValue(error.response.data.msg)
     }
   }
 )

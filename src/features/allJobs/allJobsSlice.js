@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import customFetch from '../../utils/axios'
 import { toast } from 'react-toastify'
-import { getUserFromLocalStorage } from '../../utils/localStorage'
 const initialFiltersState = {
   search: '',
   searchStatus: 'all',
@@ -26,12 +25,7 @@ export const getAllJobs = createAsyncThunk(
   async (_, thunkAPI) => {
     let url = `/api/v1/jobs`
     try {
-      const { token } = getUserFromLocalStorage().user
-      const resp = await customFetch.get(url, {
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-      })
+      const resp = await customFetch.get(url)
       return resp.data
     } catch (error) {
       return thunkAPI.rejectWithValue('Something Went wrong')
