@@ -48,7 +48,8 @@ const Register = () => {
         navigate('/')
       }, 3000)
     }
-  }, [user, navigate])
+    //eslint-disable-next-line
+  }, [user])
   return (
     <Wrapper className='full-page'>
       <form className='form' onSubmit={onSubmit}>
