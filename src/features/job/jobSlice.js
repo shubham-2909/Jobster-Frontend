@@ -2,7 +2,6 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { toast } from 'react-toastify'
 import { getUserFromLocalStorage } from '../../utils/localStorage'
 import customFetch from '../../utils/axios'
-import { logoutUser } from '../user/userSlice'
 import { showLoading, hideLoading, getAllJobs } from '../allJobs/allJobsSlice'
 const initialState = {
   isLoading: false,
@@ -25,11 +24,6 @@ export const createJob = createAsyncThunk(
       thunkAPI.dispatch(clearValues())
       return resp.data
     } catch (error) {
-      if (error.response.status === 401) {
-        thunkAPI.dispatch(logoutUser())
-        return thunkAPI.rejectWithValue('Unauthorized user!')
-      }
-
       return thunkAPI.rejectWithValue(error.response.data.msg)
     }
   }

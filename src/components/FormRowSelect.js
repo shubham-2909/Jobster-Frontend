@@ -1,5 +1,3 @@
-import React from 'react'
-
 const FormRowSelect = ({ labelText, name, value, onChange, list }) => {
   return (
     <div className='form-row'>

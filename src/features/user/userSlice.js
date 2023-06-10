@@ -5,7 +5,12 @@ import {
   addUserToLocalStorage,
   removeUserFromLocalStorage,
 } from '../../utils/localStorage'
-import { loginUserThunk, registerUserThunk, updateUserThunk } from './userThunk'
+import {
+  clearStoreThunk,
+  loginUserThunk,
+  registerUserThunk,
+  updateUserThunk,
+} from './userThunk'
 
 let user = null
 if (getUserFromLocalStorage()) {
@@ -38,6 +43,13 @@ export const updateUser = createAsyncThunk(
     return updateUserThunk('/api/v1/auth/updateUser', user, thunkAPI)
   }
 )
+
+export const clearStore = createAsyncThunk(
+  'user/clearStore',
+  async (message, thunkAPI) => {
+    return clearStoreThunk(message, thunkAPI)
+  }
+)
 const userSlice = createSlice({
   name: 'user',
   initialState,
@@ -45,10 +57,11 @@ const userSlice = createSlice({
     toggleSidebar: (state) => {
       state.isSidebarOpen = !state.isSidebarOpen
     },
-    logoutUser: (state) => {
+    logoutUser: (state, { payload }) => {
       state.isSidebarOpen = false
       state.user = null
       removeUserFromLocalStorage()
+      toast.success(payload)
     },
   },
   extraReducers: {
@@ -97,6 +110,9 @@ const userSlice = createSlice({
     [updateUser.rejected]: (state, { payload }) => {
       state.isLoading = false
       toast.error(payload)
+    },
+    [clearStore.rejected]: () => {
+      toast.error('There was an error')
     },
   },
 })

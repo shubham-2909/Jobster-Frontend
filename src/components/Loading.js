@@ -1,5 +1,10 @@
 const Loading = ({ center }) => {
-  return <div className={center ? 'loading loading-center' : 'loading'}></div>
+  return (
+    <div
+      style={{ marginTop: '30px' }}
+      className={center ? 'loading loading-center' : 'loading'}
+    ></div>
+  )
 }
 
 export default Loading
