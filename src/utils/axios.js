@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { getUserFromLocalStorage } from './localStorage'
 const customFetch = axios.create({
-  baseURL: 'https://jobster-api-x0hg.onrender.com/',
+  baseURL: 'https://phoenix-jobster-api.onrender.com',
 })
 
 customFetch.interceptors.request.use((config) => {
